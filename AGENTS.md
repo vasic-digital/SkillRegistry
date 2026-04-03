@@ -1,113 +1,287 @@
-# AGENTS.md - SkillRegistry Module
+# SkillRegistry Developer Guide
 
-## Module Overview
+This document provides guidelines for developers working on the SkillRegistry module.
 
-`digital.vasic.skillregistry` is a generic, reusable Go module providing CLI agent skill registration and management for AI agent systems. It provides a unified interface for defining agent skills, capabilities, and configuration templates. The module has zero external runtime dependencies beyond Go standard library.
-
-**Module path**: `digital.vasic.skillregistry`
-**Go version**: 1.24+
-**Dependencies**: `github.com/stretchr/testify` (test only)
-
-## Package Responsibilities
-
-| Package | Path | Responsibility |
-|---------|------|----------------|
-| `agents` | `./` | Core types: `CLIAgent` struct, `CLIAgentRegistry` map, 48+ built-in CLI agents (OpenCode, Crush, Cody, etc.). This is the only package with no internal dependencies. |
-
-## Dependency Graph
+## Module Structure
 
 ```
-agents (self-contained)
+SkillRegistry/
+├── types.go              # Core types and error definitions
+├── loader.go             # Skill loading from files
+├── executor.go           # Skill execution engine
+├── validator.go          # Skill validation
+├── manager.go            # Skill management
+├── storage.go            # Storage interface
+├── storage_memory.go     # In-memory storage implementation
+├── storage_postgres.go   # PostgreSQL storage implementation
+├── registry.go           # CLI agent registry (existing)
+├── *_test.go             # Test files
+├── README.md             # User documentation
+└── AGENTS.md             # This file
 ```
 
-The module is a single package with no internal dependencies. All registry functions are pure and stateless.
+## Adding New Features
 
-## Key Files
+### Adding a New Skill Category
 
-| File | Purpose |
-|------|---------|
-| `registry.go` | CLIAgent struct, CLIAgentRegistry map, 48+ built-in CLI agent definitions |
-| `registry_test.go` | Registry package unit tests |
-| `doc.go` | Package documentation |
-| `go.mod` | Module definition and dependencies |
-| `CLAUDE.md` | AI coding assistant instructions |
-| `README.md` | User-facing documentation with quick start |
+1. Add the category constant in `types.go`:
+```go
+const (
+    // ... existing categories
+    CategoryNewCategory SkillCategory = "new_category"
+)
+```
 
-## Agent Coordination Guide
+2. Update `IsValidCategory()` function to include the new category
 
-### Division of Work
+3. Update `AllCategories()` function
 
-When multiple agents work on this module simultaneously, divide work by tool handler boundaries:
+4. Add tests in `types_test.go`
 
-1. **Core Agent** -- Owns `ToolHandler` interface, `ToolRegistry`, validation functions. Changes to core types affect all tool handlers. Must coordinate with all other agents before modifying the `ToolHandler` interface or `ToolResult` struct.
-2. **Tool Handler Agents** -- Each agent can own one or more tool handlers (Git, Test, Lint, etc.). Changes to a specific tool handler only affect that handler.
-3. **Validation Agent** -- Owns validation functions. Changes to validation logic affect all tool handlers that use those functions.
+### Adding a New Storage Backend
 
-### Coordination Rules
+1. Create a new file (e.g., `storage_redis.go`)
 
-- **ToolHandler interface changes** require all agents to update. The interface is the shared contract.
-- **ToolResult struct changes** require all agents to update. This is the shared output format.
-- **Validation function changes** affect all tool handlers that use them. Must be coordinated with tool handler owners.
-- **New tool handlers** can be added independently without coordination, as long as they implement the existing interface.
-- **Test isolation**: Each tool handler should have its own test cases in `handler_test.go`.
+2. Implement the `SkillStorage` interface:
+```go
+type RedisStorage struct {
+    client *redis.Client
+    config *StorageConfig
+}
 
-### Safe Parallel Changes
+func NewRedisStorage(addr string) (*RedisStorage, error) {
+    // Implementation
+}
 
-These changes can be made simultaneously without coordination:
-- Adding a new tool handler (implementing existing ToolHandler interface)
-- Adding new tests for existing tool handlers
-- Updating documentation
-- Adding new validation helper functions (if they don't break existing signatures)
+func (s *RedisStorage) Save(skill *Skill) error {
+    // Implementation
+}
+// ... implement all methods
+```
 
-### Changes Requiring Coordination
+3. Add comprehensive tests in `storage_test.go`
 
-- Modifying the `ToolHandler` interface methods
-- Changing `ToolResult` struct fields
-- Modifying validation function signatures or behavior
-- Changing `ToolRegistry` thread-safety mechanisms
+### Adding Execution Hooks
 
-## Build and Test Commands
+Create a hook that implements the `ExecutionHook` interface:
+
+```go
+type MyHook struct {
+    // Your fields
+}
+
+func (h *MyHook) BeforeExecution(ctx *SkillExecutionContext) error {
+    // Pre-execution logic
+    return nil
+}
+
+func (h *MyHook) AfterExecution(ctx *SkillExecutionContext, result *SkillResult) error {
+    // Post-execution logic
+    return nil
+}
+```
+
+Register the hook:
+
+```go
+executor := NewSkillExecutor()
+executor.AddHook(&MyHook{})
+```
+
+## Testing Guidelines
+
+### Unit Tests
+
+- Test each function in isolation
+- Use table-driven tests where appropriate
+- Mock external dependencies
+- Aim for >90% coverage
+
+Example:
+
+```go
+func TestMyFunction(t *testing.T) {
+    tests := []struct {
+        name     string
+        input    string
+        expected string
+        wantErr  bool
+    }{
+        {"valid case", "input", "output", false},
+        {"error case", "", "", true},
+    }
+    
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            got, err := MyFunction(tt.input)
+            if tt.wantErr {
+                assert.Error(t, err)
+                return
+            }
+            assert.NoError(t, err)
+            assert.Equal(t, tt.expected, got)
+        })
+    }
+}
+```
+
+### Integration Tests
+
+- Test with real dependencies when possible
+- Use `t.TempDir()` for file operations
+- Clean up resources after tests
+
+### Running Tests
 
 ```bash
-# Build all packages
-go build ./...
+# Run all tests
+go test ./...
 
-# Run all tests with race detection
-go test ./... -count=1 -race
+# Run with verbose output
+go test -v ./...
 
-# Run unit tests only (short mode)
-go test ./... -short
+# Run specific test
+go test -run TestFunctionName ./...
 
-# Run integration tests
-go test -tags=integration ./...
+# Run with race detector
+go test -race ./...
 
-# Run a specific test
-go test -v -run TestReadFileHandler ./...
-
-# Format code
-gofmt -w .
-
-# Vet code
-go vet ./...
+# Generate coverage report
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
 ```
 
-## Commit Conventions
+## Code Style
 
-Follow Conventional Commits with tool scope:
+### Naming Conventions
 
+- Use `PascalCase` for exported identifiers
+- Use `camelCase` for unexported identifiers
+- Use `SCREAMING_SNAKE_CASE` for constants
+- Acronyms: all caps (`HTTP`, `URL`, `ID`)
+
+### Error Handling
+
+- Wrap errors with context: `fmt.Errorf("context: %w", err)`
+- Use sentinel errors for common cases
+- Check errors immediately after they occur
+
+Example:
+
+```go
+result, err := doSomething()
+if err != nil {
+    return fmt.Errorf("failed to do something: %w", err)
+}
 ```
-feat(tools): add new validation function for URLs
-feat(git): add support for git stash operations
-feat(test): add benchmark test support
-fix(validation): prevent path traversal in ValidatePath
-test(readfile): add edge case tests for empty files
-docs(toolschema): update API reference
-refactor(registry): improve thread safety with RWMutex
+
+### Struct Tags
+
+Use consistent struct tags:
+
+```go
+type Skill struct {
+    Name        string            `json:"name" yaml:"name"`
+    Description string            `json:"description" yaml:"description"`
+    // ...
+}
 ```
 
-## Thread Safety Notes
+## Documentation
 
-- `ToolRegistry` is thread-safe using `sync.RWMutex`. Registration and lookup are protected.
-- Tool handlers are stateless and safe for concurrent execution.
-- Validation functions are pure functions with no shared state, safe for concurrent invocation.
-- Command execution uses `exec.CommandContext` with validated arguments to prevent shell injection.
+- Add package documentation in `doc.go`
+- Document all exported types and functions
+- Include usage examples in comments
+- Keep README.md up to date
+
+Example:
+
+```go
+// SkillManager manages the lifecycle of skills including
+// registration, execution, and storage.
+//
+// Usage:
+//     manager := NewSkillManager(storage)
+//     manager.Register(skill)
+//     result, err := manager.Execute("skill-name", ctx)
+type SkillManager struct {
+    // ...
+}
+```
+
+## Performance Considerations
+
+### Concurrency
+
+- Use `sync.RWMutex` for read-heavy operations
+- Use `sync.Mutex` for write-heavy operations
+- Avoid holding locks during I/O operations
+
+Example:
+
+```go
+func (m *Manager) Get(name string) (*Skill, bool) {
+    m.skillsMu.RLock()
+    defer m.skillsMu.RUnlock()
+    skill, exists := m.skills[name]
+    return skill, exists
+}
+```
+
+### Memory
+
+- Use `copySkill()` when returning skills from storage
+- Avoid unnecessary allocations in hot paths
+- Consider using object pools for high-frequency operations
+
+## Security
+
+- Validate all inputs
+- Sanitize file paths
+- Don't log sensitive information
+- Use parameterized queries for database operations
+
+## Versioning
+
+Follow semantic versioning:
+
+- MAJOR: Incompatible API changes
+- MINOR: Backward-compatible functionality additions
+- PATCH: Backward-compatible bug fixes
+
+## Release Checklist
+
+- [ ] All tests pass
+- [ ] Coverage >90%
+- [ ] Documentation updated
+- [ ] CHANGELOG.md updated
+- [ ] Version bumped
+- [ ] Tag created
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: Tests fail with "skill not found"
+- Check that the skill is registered before use
+- Verify the skill name is correct (case-sensitive)
+
+**Issue**: PostgreSQL storage connection fails
+- Verify connection string format
+- Check database server is running
+- Ensure database and user exist
+
+**Issue**: Skill execution times out
+- Increase timeout value
+- Check if the skill entry point is correct
+- Verify the skill script has execute permissions
+
+## Resources
+
+- [Go Testing](https://golang.org/pkg/testing/)
+- [Go Documentation](https://golang.org/doc/)
+- [Effective Go](https://golang.org/doc/effective_go.html)
+
+## Contact
+
+For questions or issues, please open an issue in the repository.

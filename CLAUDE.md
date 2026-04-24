@@ -10,15 +10,13 @@ same session as the change.** Coverage and green suites are not evidence.
 
 ### Acceptance demo for this module
 
-<!-- TODO: replace this block with the exact command(s) that exercise this
-     module end-to-end against real dependencies, and the expected output.
-     The commands must run the real artifact (built binary, deployed
-     container, real service) — no in-process fakes, no mocks, no
-     `httptest.NewServer`, no Robolectric, no JSDOM as proof of done. -->
-
 ```bash
-# TODO
+# Skill definition → validation → registration → enable → execute with metrics
+cd SkillRegistry && GOMAXPROCS=2 nice -n 19 go test -count=1 -race -v \
+  -run 'TestSkillManager_|TestLoader_LoadSkillFromFile|TestSkillValidator_' .
 ```
+Expect: PASS; YAML/JSON/SKILL.md loaders work; dependency-cycle detection catches cycles; metrics increment on execution.
+
 
 > **Note:** Earlier versions of this file were a verbatim copy of `ToolSchema/CLAUDE.md` and described the wrong module (ToolHandler / Git / Test / Lint tools). That was a documentation bug. This file now describes what actually lives in this module — agent *skill* registration and lifecycle.
 

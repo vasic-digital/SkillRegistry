@@ -133,13 +133,17 @@ func TestInMemoryStorage_ConcurrentAccess(t *testing.T) {
 }
 
 func TestNewStorage_InvalidType(t *testing.T) {
+	// Post-2026-04-11: NewStorage surfaces a warning error for
+	// unrecognised types while still returning a usable in-memory
+	// fallback. Silent fallback made configuration bugs invisible.
 	config := &StorageConfig{
 		Type: "invalid",
 	}
 
 	storage, err := NewStorage(config)
 
-	assert.NoError(t, err)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unknown storage type")
 	assert.NotNil(t, storage)
 	_, ok := storage.(*InMemoryStorage)
 	assert.True(t, ok)

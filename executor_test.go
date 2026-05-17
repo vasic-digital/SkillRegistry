@@ -30,6 +30,7 @@ func TestNewSkillExecutorWithConcurrency(t *testing.T) {
 
 func TestSkillExecutor_Execute(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	skill := &Skill{
 		ID:          "test-skill",
@@ -52,6 +53,31 @@ func TestSkillExecutor_Execute(t *testing.T) {
 	assert.Equal(t, skill.ID, result.SkillID)
 	assert.NotNil(t, result.Output)
 	assert.NotZero(t, result.Duration)
+}
+
+// TestSkillExecutor_Execute_WithoutRegisteredHandler asserts the round-26
+// §11.4 audit fix: when no handler is registered, Execute MUST return
+// ErrNoHandlerRegistered instead of silently echoing inputs as success.
+func TestSkillExecutor_Execute_WithoutRegisteredHandler(t *testing.T) {
+	executor := NewSkillExecutor()
+
+	skill := &Skill{
+		ID:          "no-handler-skill",
+		Name:        "No Handler Skill",
+		Description: "A skill without any registered handler",
+		Enabled:     true,
+		Status:      SkillStatusActive,
+	}
+
+	ctx := NewSkillExecutionContext(skill.ID)
+	result, err := executor.Execute(skill, ctx)
+
+	require.NoError(t, err, "Execute returns (result, nil) when handler missing — failure surfaces inside result")
+	require.NotNil(t, result)
+	assert.Equal(t, ExecutionStatusFailed, result.Status,
+		"missing handler MUST yield a FAILED result, not a fabricated success")
+	assert.Contains(t, result.Error, "no handler registered",
+		"error message MUST point operator at RegisterHandler; got: %s", result.Error)
 }
 
 func TestSkillExecutor_Execute_NilSkill(t *testing.T) {
@@ -103,6 +129,7 @@ func TestSkillExecutor_Execute_InactiveSkill(t *testing.T) {
 
 func TestSkillExecutor_ExecuteWithTimeout(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	skill := &Skill{
 		ID:          "timeout-skill",
@@ -193,6 +220,7 @@ func TestSkillExecutor_UnregisterHandler(t *testing.T) {
 
 func TestSkillExecutor_AddPreExecutionHook(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	hookCalled := false
 	hook := func(s *Skill, ctx *SkillExecutionContext) error {
@@ -219,6 +247,7 @@ func TestSkillExecutor_AddPreExecutionHook(t *testing.T) {
 
 func TestSkillExecutor_AddPostExecutionHook(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	hookCalled := false
 	hook := func(s *Skill, ctx *SkillExecutionContext) error {

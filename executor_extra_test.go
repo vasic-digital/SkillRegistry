@@ -11,6 +11,7 @@ import (
 
 func TestSkillExecutor_Execute_PostHookError(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	// Add a post-execution hook that returns an error
 	hookCalled := false
@@ -64,6 +65,10 @@ func TestSkillExecutor_getHandler_WithDefinition(t *testing.T) {
 	assert.Equal(t, "custom", result.Output)
 }
 
+// TestSkillExecutor_getHandler_Unregistered: round-26 §11.4 audit changed
+// this contract — when no handler is registered for either the requested
+// type or the "default" key, Execute MUST surface ErrNoHandlerRegistered
+// instead of silently echoing inputs as a fabricated success.
 func TestSkillExecutor_getHandler_Unregistered(t *testing.T) {
 	executor := NewSkillExecutor()
 
@@ -81,9 +86,11 @@ func TestSkillExecutor_getHandler_Unregistered(t *testing.T) {
 	ctx := NewSkillExecutionContext(skill.ID)
 	result, err := executor.Execute(skill, ctx)
 
-	require.NoError(t, err)
-	// Should use default handler
-	assert.Equal(t, ExecutionStatusSuccess, result.Status)
+	require.NoError(t, err, "Execute returns (result, nil) — failure surfaces inside result")
+	require.NotNil(t, result)
+	assert.Equal(t, ExecutionStatusFailed, result.Status,
+		"unregistered handler MUST yield FAILED, not fabricated success")
+	assert.Contains(t, result.Error, "no handler registered")
 }
 
 func TestSkillExecutor_ValidateInputs_WithDefault(t *testing.T) {
@@ -109,6 +116,7 @@ func TestSkillExecutor_ValidateInputs_WithDefault(t *testing.T) {
 
 func TestSkillExecutor_ExecuteWithTimeout_ZeroTimeout(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	skill := &Skill{
 		ID:          "zero-timeout",
@@ -128,8 +136,14 @@ func TestSkillExecutor_ExecuteWithTimeout_ZeroTimeout(t *testing.T) {
 	assert.Equal(t, ExecutionStatusSuccess, result.Status)
 }
 
+// TestSkillExecutor_Execute_DefaultHandlerLogs: round-26 §11.4 audit renamed
+// this from "DefaultHandler" semantics — there is no longer an implicit
+// default echo handler. Test now installs a real stub handler under "default"
+// (per CONST-050(A) which permits stubs in *_test.go) and asserts the stub's
+// log output is captured.
 func TestSkillExecutor_Execute_DefaultHandlerLogs(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	skill := &Skill{
 		ID:          "log-test",
@@ -192,6 +206,7 @@ func TestSkillResult_Success_MultipleCalls(t *testing.T) {
 
 func TestSkillExecutor_ConcurrentExecution(t *testing.T) {
 	executor := NewSkillExecutorWithConcurrency(5)
+	installDefaultEchoHandler(executor)
 
 	skill := &Skill{
 		ID:          "concurrent",

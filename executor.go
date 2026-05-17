@@ -71,8 +71,16 @@ func (se *SkillExecutor) Execute(skill *Skill, ctx *SkillExecutionContext) (*Ski
 
 	handler := se.getHandler(skill.Definition)
 	if handler == nil {
-		result.AddLog("No handler registered for skill, using default handler")
-		handler = se.defaultHandler
+		// Per round-26 §11.4 audit (2026-05-17): the previous fallback
+		// installed a defaultHandler that echoed the inputs back as a
+		// "successful" execution — a §11.4 PASS-bluff at the executor-
+		// default layer. Tests passed against this bluff and consumers
+		// got meaningless "skill executed" data they trusted.
+		// Fix: surface a sentinel error explaining what to do; the caller
+		// MUST register a real handler before invoking Execute.
+		err := fmt.Errorf("%w: skill=%s handlerType=%q", ErrNoHandlerRegistered, skill.ID, skillHandlerType(skill.Definition))
+		result.AddLog(err.Error())
+		return result.Fail(err), nil
 	}
 
 	execResult, err := handler(skill, ctx)
@@ -180,25 +188,21 @@ func (se *SkillExecutor) getHandler(def *SkillDefinition) SkillHandler {
 	return se.handlers["default"]
 }
 
-func (se *SkillExecutor) defaultHandler(skill *Skill, ctx *SkillExecutionContext) (*SkillResult, error) {
-	result := NewSkillResult(ctx.ExecutionID, skill.ID)
-	
-	result.AddLog(fmt.Sprintf("Executing skill: %s", skill.Name))
-	result.AddLog(fmt.Sprintf("Skill description: %s", skill.Description))
+// ErrNoHandlerRegistered is returned by Execute when no real handler is
+// registered for a skill. Per round-26 §11.4 audit (2026-05-17), the previous
+// defaultHandler fallback echoed the inputs back as a "successful" execution
+// — a §11.4 PASS-bluff at the executor-default layer. Callers MUST register
+// a real handler via SkillExecutor.RegisterHandler(handlerType, fn) (or via
+// SkillManager.RegisterHandler) before invoking Execute.
+var ErrNoHandlerRegistered = fmt.Errorf("skillregistry: no handler registered for skill — call RegisterHandler(handlerType, handler) before invoking Execute (the previous default echoed inputs as fake success; §11.4 PASS-bluff removed)")
 
-	if len(ctx.Inputs) > 0 {
-		result.AddLog(fmt.Sprintf("Received %d input parameters", len(ctx.Inputs)))
+// skillHandlerType returns the handler key configured on the skill definition,
+// used in error messages so the caller knows which RegisterHandler key to use.
+func skillHandlerType(def *SkillDefinition) string {
+	if def == nil || def.Handler == "" {
+		return "default"
 	}
-
-	output := map[string]interface{}{
-		"skill_id":    skill.ID,
-		"skill_name":  skill.Name,
-		"executed_at": time.Now(),
-		"inputs":      ctx.Inputs,
-	}
-
-	result.Output = output
-	return result, nil
+	return def.Handler
 }
 
 func (se *SkillExecutor) ValidateInputs(skill *Skill, inputs map[string]interface{}) error {

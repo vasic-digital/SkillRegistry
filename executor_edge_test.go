@@ -64,6 +64,7 @@ func TestSkillExecutor_Execute_HandlerReturnsError(t *testing.T) {
 
 func TestSkillExecutor_Execute_Concurrent(t *testing.T) {
 	executor := NewSkillExecutorWithConcurrency(2)
+	installDefaultEchoHandler(executor)
 
 	skill := &Skill{
 		ID:          "concurrent-test",
@@ -119,6 +120,7 @@ func TestSkillExecutor_ExecuteWithTimeout_Success(t *testing.T) {
 
 func TestSkillExecutor_ExecuteWithTimeout_ChannelResult(t *testing.T) {
 	executor := NewSkillExecutor()
+	installDefaultEchoHandler(executor)
 
 	skill := &Skill{
 		ID:          "timeout-test",

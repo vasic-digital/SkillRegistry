@@ -368,6 +368,12 @@ func TestSkillManager_Disable_NotFound(t *testing.T) {
 
 func TestSkillManager_Execute(t *testing.T) {
 	manager := NewSkillManager(nil)
+	// Round-26 §11.4 audit: SkillManager.Execute delegates to executor which
+	// now returns ErrNoHandlerRegistered on missing handler; install a unit-
+	// test stub via the public RegisterHandler API to keep this test honest.
+	manager.RegisterHandler("default", func(s *Skill, ctx *SkillExecutionContext) (*SkillResult, error) {
+		return NewSkillResult(ctx.ExecutionID, s.ID).Success(map[string]interface{}{"ok": true}), nil
+	})
 
 	skill := &Skill{
 		ID:          "exec-skill",
@@ -402,6 +408,11 @@ func TestSkillManager_Execute_NotFound(t *testing.T) {
 
 func TestSkillManager_ExecuteWithTimeout(t *testing.T) {
 	manager := NewSkillManager(nil)
+	// Round-26 §11.4 audit: install a unit-test stub under "default" so
+	// SkillManager.Execute → SkillExecutor.Execute can dispatch.
+	manager.RegisterHandler("default", func(s *Skill, ctx *SkillExecutionContext) (*SkillResult, error) {
+		return NewSkillResult(ctx.ExecutionID, s.ID).Success(map[string]interface{}{"ok": true}), nil
+	})
 
 	skill := &Skill{
 		ID:          "timeout-skill",

@@ -157,7 +157,7 @@ The module does not depend on `digital.vasic.toolschema` — the two are peers w
 - `NewPostgresStorage` is wired but the implementation body is a `TODO`. Use `NewInMemoryStorage` for now; PostgreSQL persistence is not production-ready.
 - `Permissions []string` on `SkillDefinition` is not validated or enforced — it is metadata only.
 - Cycle-detection error messages do not distinguish a direct A→A loop from a deeper A→B→C→A chain. Minor UX gap.
-- A skill without a handler registered in the executor falls through to a default echo handler that just returns the inputs. Tests will pass against this; real skills must register a real handler via `SkillExecutor.RegisterHandler(handlerType, fn)`.
+- A skill without a handler registered in the executor returns `ErrNoHandlerRegistered`. Tests MUST register a real handler via `SkillExecutor.RegisterHandler(handlerType, handler)` (or `SkillManager.RegisterHandler`) before invoking `Execute`. Per §11.4 / CONST-035: silent echo successes are forbidden (round-26 §11.4 audit, 2026-05-17 — the previous default-handler fallback echoed inputs as fake success and was a §11.4 PASS-bluff at the executor-default layer).
 
 ## Acceptance demo
 

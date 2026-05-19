@@ -53,7 +53,7 @@ func (se *SkillExecutor) Execute(skill *Skill, ctx *SkillExecutionContext) (*Ski
 		if skill.Status == SkillStatusDisabled || !skill.Enabled {
 			return nil, fmt.Errorf("%w: %s", ErrSkillDisabled, skill.ID)
 		}
-		return nil, fmt.Errorf("skill is not active: %s", skill.ID)
+		return nil, fmt.Errorf("%s", tr("skillregistry_executor_skill_not_active", map[string]any{"SkillID": skill.ID}))
 	}
 
 	se.semaphore <- struct{}{}
@@ -64,7 +64,7 @@ func (se *SkillExecutor) Execute(skill *Skill, ctx *SkillExecutionContext) (*Ski
 
 	for i, hook := range se.preExecutionHooks {
 		if err := hook(skill, ctx); err != nil {
-			result.AddLog(fmt.Sprintf("Pre-execution hook %d failed: %v", i, err))
+			result.AddLog(tr("skillregistry_executor_pre_hook_failed", map[string]any{"Index": i, "Error": err}))
 			return result.Fail(fmt.Errorf("pre-execution hook failed: %w", err)), nil
 		}
 	}
@@ -86,19 +86,19 @@ func (se *SkillExecutor) Execute(skill *Skill, ctx *SkillExecutionContext) (*Ski
 	execResult, err := handler(skill, ctx)
 	if err != nil {
 		result.Fail(err)
-		result.AddLog(fmt.Sprintf("Execution failed: %v", err))
+		result.AddLog(tr("skillregistry_executor_execution_failed", map[string]any{"Error": err}))
 	} else if execResult != nil {
 		result.Success(execResult.Output)
 		result.Logs = append(result.Logs, execResult.Logs...)
 		result.Metadata = mergeMetadata(result.Metadata, execResult.Metadata)
 	} else {
 		result.Success(nil)
-		result.AddLog("Handler returned nil result")
+		result.AddLog(tr("skillregistry_executor_handler_nil_result", nil))
 	}
 
 	for i, hook := range se.postExecutionHooks {
 		if hookErr := hook(skill, ctx); hookErr != nil {
-			result.AddLog(fmt.Sprintf("Post-execution hook %d failed: %v", i, hookErr))
+			result.AddLog(tr("skillregistry_executor_post_hook_failed", map[string]any{"Index": i, "Error": hookErr}))
 		}
 	}
 
@@ -261,7 +261,7 @@ func mergeMetadata(m1, m2 map[string]interface{}) map[string]interface{} {
 func CreateLoggingHook(logger func(string)) ExecutionHook {
 	return func(skill *Skill, ctx *SkillExecutionContext) error {
 		if logger != nil {
-			logger(fmt.Sprintf("Executing skill: %s (execution: %s)", skill.Name, ctx.ExecutionID))
+			logger(tr("skillregistry_executor_executing_skill", map[string]any{"Name": skill.Name, "ExecutionID": ctx.ExecutionID}))
 		}
 		return nil
 	}

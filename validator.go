@@ -31,7 +31,7 @@ func NewDependencyResolver() *DependencyResolver {
 
 func (sv *SkillValidator) ValidateSkill(skill *Skill) error {
 	if skill == nil {
-		return fmt.Errorf("%w: skill is nil", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_skill_nil", nil))
 	}
 
 	if err := sv.validateRequiredFields(skill); err != nil {
@@ -77,15 +77,15 @@ func (sv *SkillValidator) ValidateSkill(skill *Skill) error {
 
 func (sv *SkillValidator) validateRequiredFields(skill *Skill) error {
 	if strings.TrimSpace(skill.ID) == "" {
-		return fmt.Errorf("%w: skill ID is required", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_id_required", nil))
 	}
 
 	if strings.TrimSpace(skill.Name) == "" {
-		return fmt.Errorf("%w: skill name is required", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_name_required", nil))
 	}
 
 	if strings.TrimSpace(skill.Description) == "" {
-		return fmt.Errorf("%w: skill description is required", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_description_required", nil))
 	}
 
 	return nil
@@ -93,12 +93,12 @@ func (sv *SkillValidator) validateRequiredFields(skill *Skill) error {
 
 func (sv *SkillValidator) validateID(id string) error {
 	if len(id) < 1 || len(id) > 100 {
-		return fmt.Errorf("%w: skill ID must be between 1 and 100 characters", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_id_length", nil))
 	}
 
 	validID := regexp.MustCompile(`^[a-z0-9]([a-z0-9-_]*[a-z0-9])?$`)
 	if !validID.MatchString(id) {
-		return fmt.Errorf("%w: skill ID must contain only lowercase letters, numbers, hyphens, and underscores, and must start and end with alphanumeric characters", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_id_charset", nil))
 	}
 
 	return nil
@@ -106,7 +106,7 @@ func (sv *SkillValidator) validateID(id string) error {
 
 func (sv *SkillValidator) validateName(name string) error {
 	if len(name) < 1 || len(name) > 200 {
-		return fmt.Errorf("%w: skill name must be between 1 and 200 characters", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_name_length", nil))
 	}
 
 	return nil
@@ -114,7 +114,7 @@ func (sv *SkillValidator) validateName(name string) error {
 
 func (sv *SkillValidator) validateDescription(desc string) error {
 	if len(desc) < 10 || len(desc) > 5000 {
-		return fmt.Errorf("%w: skill description must be between 10 and 5000 characters", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_description_length", nil))
 	}
 
 	return nil
@@ -127,7 +127,7 @@ func (sv *SkillValidator) validateVersion(version string) error {
 
 	semverPattern := regexp.MustCompile(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`)
 	if !semverPattern.MatchString(version) {
-		return fmt.Errorf("%w: version must follow semantic versioning (e.g., 1.0.0)", ErrSkillInvalid)
+		return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_version_semver", nil))
 	}
 
 	return nil
@@ -154,16 +154,16 @@ func (sv *SkillValidator) validateCategory(category SkillCategory) error {
 		}
 	}
 
-	return fmt.Errorf("%w: invalid category '%s'", ErrSkillInvalid, category)
+	return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_category_invalid", map[string]any{"Category": string(category)}))
 }
 
 func (sv *SkillValidator) validateTriggers(triggers []string) error {
 	for _, trigger := range triggers {
 		if strings.TrimSpace(trigger) == "" {
-			return fmt.Errorf("%w: trigger cannot be empty", ErrSkillInvalid)
+			return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_trigger_empty", nil))
 		}
 		if len(trigger) > 100 {
-			return fmt.Errorf("%w: trigger exceeds maximum length of 100 characters", ErrSkillInvalid)
+			return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_trigger_too_long", nil))
 		}
 	}
 
@@ -173,10 +173,10 @@ func (sv *SkillValidator) validateTriggers(triggers []string) error {
 func (sv *SkillValidator) validateTags(tags []string) error {
 	for _, tag := range tags {
 		if strings.TrimSpace(tag) == "" {
-			return fmt.Errorf("%w: tag cannot be empty", ErrSkillInvalid)
+			return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_tag_empty", nil))
 		}
 		if len(tag) > 50 {
-			return fmt.Errorf("%w: tag exceeds maximum length of 50 characters", ErrSkillInvalid)
+			return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_tag_too_long", nil))
 		}
 	}
 
@@ -204,11 +204,11 @@ func (sv *SkillValidator) validateParameters(params []SkillParameter) error {
 
 	for _, param := range params {
 		if strings.TrimSpace(param.Name) == "" {
-			return fmt.Errorf("%w: parameter name cannot be empty", ErrSkillInvalid)
+			return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_parameter_name_empty", nil))
 		}
 
 		if paramNames[param.Name] {
-			return fmt.Errorf("%w: duplicate parameter name '%s'", ErrSkillInvalid, param.Name)
+			return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_parameter_name_duplicate", map[string]any{"Name": param.Name}))
 		}
 		paramNames[param.Name] = true
 
@@ -221,7 +221,7 @@ func (sv *SkillValidator) validateParameters(params []SkillParameter) error {
 			}
 		}
 		if !isValidType && param.Type != "" {
-			return fmt.Errorf("%w: invalid parameter type '%s' for parameter '%s'", ErrSkillInvalid, param.Type, param.Name)
+			return fmt.Errorf("%w: %s", ErrSkillInvalid, tr("skillregistry_validation_parameter_type_invalid", map[string]any{"Type": param.Type, "Name": param.Name}))
 		}
 	}
 

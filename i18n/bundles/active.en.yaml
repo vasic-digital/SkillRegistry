@@ -1,0 +1,91 @@
+# SkillRegistry i18n bundle — active English (en) locale.
+#
+# Every entry maps a CONST-046-migrated hardcoded literal in the
+# SkillRegistry module (package agents) to a message ID resolved at
+# runtime via Translator.T. A consuming application wires a real
+# Translator over this bundle at boot (see i18n.go); the in-package
+# NoopTranslator echoes the message ID verbatim for unit tests +
+# backward compat.
+#
+# Naming convention: skillregistry_<area>_<short_description>. All IDs
+# prefixed with skillregistry_ to avoid namespace collision with other
+# packages' bundles when loaded into the same go-i18n.Bundle.
+#
+# Round-333 §11.4 anti-bluff sweep (2026-05-19): migrated 19
+# user-facing literals — 13 skill-validation messages a user sees when
+# a skill fails validation (validator.go) and 6 operator-facing
+# executor diagnostics (executor.go log lines + the non-active-skill
+# error). Wrapped-error tech strings ("cannot read YAML: %w"),
+# identifier tokens, and SQL queries are intentionally NOT migrated —
+# they are not user-facing copy.
+
+# --- validator.go: skill-validation messages ---
+skillregistry_validation_skill_nil:
+  other: "skill is nil"
+
+skillregistry_validation_id_required:
+  other: "skill ID is required"
+
+skillregistry_validation_name_required:
+  other: "skill name is required"
+
+skillregistry_validation_description_required:
+  other: "skill description is required"
+
+skillregistry_validation_id_length:
+  other: "skill ID must be between 1 and 100 characters"
+
+skillregistry_validation_id_charset:
+  other: "skill ID must contain only lowercase letters, numbers, hyphens, and underscores, and must start and end with alphanumeric characters"
+
+skillregistry_validation_name_length:
+  other: "skill name must be between 1 and 200 characters"
+
+skillregistry_validation_description_length:
+  other: "skill description must be between 10 and 5000 characters"
+
+skillregistry_validation_version_semver:
+  other: "version must follow semantic versioning (e.g., 1.0.0)"
+
+skillregistry_validation_category_invalid:
+  other: "invalid category '{{.Category}}'"
+
+skillregistry_validation_trigger_empty:
+  other: "trigger cannot be empty"
+
+skillregistry_validation_trigger_too_long:
+  other: "trigger exceeds maximum length of 100 characters"
+
+skillregistry_validation_tag_empty:
+  other: "tag cannot be empty"
+
+skillregistry_validation_tag_too_long:
+  other: "tag exceeds maximum length of 50 characters"
+
+skillregistry_validation_parameter_name_empty:
+  other: "parameter name cannot be empty"
+
+skillregistry_validation_parameter_name_duplicate:
+  other: "duplicate parameter name '{{.Name}}'"
+
+skillregistry_validation_parameter_type_invalid:
+  other: "invalid parameter type '{{.Type}}' for parameter '{{.Name}}'"
+
+# --- executor.go: operator-facing execution diagnostics ---
+skillregistry_executor_skill_not_active:
+  other: "skill is not active: {{.SkillID}}"
+
+skillregistry_executor_pre_hook_failed:
+  other: "Pre-execution hook {{.Index}} failed: {{.Error}}"
+
+skillregistry_executor_execution_failed:
+  other: "Execution failed: {{.Error}}"
+
+skillregistry_executor_handler_nil_result:
+  other: "Handler returned nil result"
+
+skillregistry_executor_post_hook_failed:
+  other: "Post-execution hook {{.Index}} failed: {{.Error}}"
+
+skillregistry_executor_executing_skill:
+  other: "Executing skill: {{.Name}} (execution: {{.ExecutionID}})"

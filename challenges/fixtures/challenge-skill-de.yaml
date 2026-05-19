@@ -1,0 +1,15 @@
+id: challenge-skill-de
+name: Herausforderungs-Fertigkeit (de)
+description: |
+  Deutschsprachige Fixture für den Anti-Bluff-Challenge-Runner der Runde 282
+  (round-282). Wird gegen reale SkillManager- und SkillExecutor-Instanzen
+  geladen, validiert, registriert, aktiviert und ausgeführt.
+version: 1.0.0
+category: general
+triggers:
+  - /herausforderung-de
+tags:
+  - challenge
+  - locale:de
+  - round-282
+author: SkillRegistry Round-282 Challenge

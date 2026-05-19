@@ -1,0 +1,15 @@
+id: challenge-skill-sr
+name: Veština za izazov (sr)
+description: |
+  Srpska lokalna fiksacija veštine za runner anti-bluff izazova runde 282
+  (round-282). Učitava se, validira, registruje, omogućava i izvršava nad
+  pravim SkillManager i SkillExecutor instancama.
+version: 1.0.0
+category: general
+triggers:
+  - /izazov-sr
+tags:
+  - challenge
+  - locale:sr
+  - round-282
+author: SkillRegistry Round-282 Challenge

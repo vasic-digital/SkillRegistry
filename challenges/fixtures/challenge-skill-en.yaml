@@ -1,0 +1,15 @@
+id: challenge-skill-en
+name: Challenge Skill (en)
+description: |
+  English locale exerciser fixture for the round-282 anti-bluff Challenge runner.
+  Loaded, validated, registered, enabled, and executed by the runner against the
+  real SkillManager and SkillExecutor.
+version: 1.0.0
+category: general
+triggers:
+  - /challenge-en
+tags:
+  - challenge
+  - locale:en
+  - round-282
+author: SkillRegistry Round-282 Challenge

@@ -37,4 +37,10 @@ api_keys.sh
 # Logs
 *.log
 coverage.out
+coverage_*.out
 htmlcov/
+
+# Round-282 challenge artefacts (build cache, scratch binaries)
+/challenges/runner/runner
+/challenges/runner/runner.exe
+/runner

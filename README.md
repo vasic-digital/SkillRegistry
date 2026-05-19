@@ -306,12 +306,124 @@ Common errors:
 Run tests:
 ```bash
 cd SkillRegistry
-go test -v ./...
+GOMAXPROCS=2 nice -n 19 go test -race -count=1 -v ./...
 
 # With coverage
 go test -cover -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
 ```
+
+## Anti-bluff guarantees (Article XI §11.9 / CONST-035 / CONST-048)
+
+> Verbatim 2026-05-19 operator mandate: *"all existing tests and
+> Challenges do work in anti-bluff manner — they MUST confirm that
+> all tested codebase really works as expected! We had been in
+> position that all tests do execute with success and all Challenges
+> as well, but in reality the most of the features does not work and
+> can't be used! This MUST NOT be the case and execution of tests
+> and Challenges MUST guarantee the quality, the completition and
+> full usability by end users of the product!"*
+
+Round-282 enrichment closes the historical "green tests, broken
+product" failure mode by enforcing six invariants on every PASS:
+
+1. **Real fixtures on disk** — the runner reads 5 real YAML files
+   from `challenges/fixtures/` via `loader.LoadSkillsFromDirectory`.
+   No embedded literal corpus, no synthetic in-memory generation.
+2. **Real validator dispatch** — `SkillValidator.ValidateSkill` runs
+   against every loaded fixture; rejection paths covered by the
+   paired-mutation Challenge (empty ID → exit 99).
+3. **Real Register → Enable → Execute pipeline** — the runner wires
+   a real `SkillManager` over a real `InMemoryStorage` with a real
+   `SkillExecutor`, registers a real handler (`challenge.exerciser`),
+   then executes every skill and asserts `Status == Success`,
+   `Output != nil`, `Duration >= 0`.
+4. **Real storage round-trip** — after Register, the runner reads
+   the storage interface back (`storage.List`) and asserts the count
+   matches. This proves Register actually persisted, not just cached.
+5. **Real discovery surfaces** — `Search`, `Filter(Enabled=true)`,
+   `ListByCategory(general)` are invoked and asserted against the
+   loaded corpus. Each query path is real, not a stub.
+6. **5-locale bilingual UX** (CONST-046) — the runner emits
+   `en/sr/ja/es/de` summary lines so non-English consumers get
+   first-class operator output.
+
+A bluff in any of these layers (silent-skip, swallowed-error, stub
+handler) is caught by the paired-mutation Challenge:
+
+```bash
+# Default mode — must exit 0 with the captured runtime evidence
+bash challenges/skillregistry_describe_challenge.sh
+
+# Mutate mode — plants empty-ID fixture; correct rejection exits 99,
+# silent acceptance exits 0 (= Challenge is itself a bluff).
+bash challenges/skillregistry_describe_challenge.sh --mutate
+```
+
+### Test-coverage ledger
+
+See [`docs/test-coverage.md`](docs/test-coverage.md) for the full
+symbol → test / Challenge mapping. Every exported symbol of the
+`agents` package is listed alongside the assertions that exercise
+it and the anti-bluff dimension each proves. Adding a public symbol
+without updating this ledger is a CONST-048 violation.
+
+### Challenge runner — direct invocation
+
+```bash
+go run ./challenges/runner -all
+```
+
+Expected tail (verbatim, modulo durations):
+
+```
+loaded_skills=5 source=challenges/fixtures
+skill=challenge-skill-de status=success duration=...
+skill=challenge-skill-en status=success duration=...
+skill=challenge-skill-es status=success duration=...
+skill=challenge-skill-ja status=success duration=...
+skill=challenge-skill-sr status=success duration=...
+[en] skillregistry: 5 skill(s) registered, 5 execution(s) succeeded
+[sr] skillregistry: 5 veština registrovano, 5 izvršavanja uspešno
+[ja] skillregistry: 5 個のスキルが登録、5 回の実行に成功
+[es] skillregistry: 5 habilidad(es) registrada(s), 5 ejecución(es) exitosa(s)
+[de] skillregistry: 5 Fertigkeit(en) registriert, 5 Ausführung(en) erfolgreich
+OK skills=5 executions=5 locales=5
+```
+
+### Exit-code map
+
+| Code | Meaning                                                                              |
+|------|--------------------------------------------------------------------------------------|
+| 0    | Every step succeeded; runtime evidence captured on stdout.                           |
+| 1    | Usage / flag error.                                                                  |
+| 2    | Coverage gap (loader returned 0 skills, registry count drifted, discovery mismatch). |
+| 3    | Schema-invariant violation (validator rejected a fixture or post-Register drift).    |
+| 4    | Execution invariant violation (Status not Success, missing Output, locale missing).  |
+| 99   | (Mutate mode only) Mutation correctly surfaced — Challenge is honest.                |
+
+## Honest known gaps
+
+These are gaps the SkillRegistry has today; the runner does NOT
+pretend they are fixed (per CONST-035 — pretending a gap is closed
+is the exact bluff this round-282 enrichment guards against):
+
+- **Metrics counters are not incremented by `Execute`.** A
+  `SkillMetrics` record is allocated at `Register` time and
+  retrievable via `GetMetrics`, but the `TotalExecutions /
+  SuccessfulRuns / FailedRuns / AverageDuration` counters stay at
+  zero. The runner asserts the metrics surface (record exists,
+  SkillID matches, no negative counters) but does NOT assert
+  `TotalExecutions >= 1` — that would be a §11.4 PASS-bluff against
+  reality. When the implementation gains real counter wiring, the
+  runner's assertion in `runAll()` should be tightened in the SAME
+  commit.
+- **`Permissions []string` on `SkillDefinition`** is parsed but not
+  enforced by the validator. Metadata-only today.
+- **`PostgresStorage` integration** requires a running PostgreSQL;
+  the runner uses `InMemoryStorage`. The Postgres path is covered
+  by `TestPostgresStorage_*` at the integration tier, which skips
+  with `SKIP-OK:` when no DB is reachable.
 
 ## Integration with HelixAgent
 

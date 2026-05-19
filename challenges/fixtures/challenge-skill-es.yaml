@@ -1,0 +1,15 @@
+id: challenge-skill-es
+name: Habilidad de Desafío (es)
+description: |
+  Fixture en español para el runner de desafío anti-bluff de la ronda 282
+  (round-282). Se carga, valida, registra, habilita y ejecuta contra
+  instancias reales de SkillManager y SkillExecutor.
+version: 1.0.0
+category: general
+triggers:
+  - /desafio-es
+tags:
+  - challenge
+  - locale:es
+  - round-282
+author: SkillRegistry Round-282 Challenge

@@ -1,8 +1,16 @@
 package agents
 
-// CLIAgent represents a CLI coding agent that can integrate with HelixAgent
+// CLIAgent represents a CLI coding agent that can integrate with HelixAgent.
+//
+// CONST-046 (round-378 §11.4 Phase 4, 2026-05-20): Description holds an
+// i18n message ID at rest, not user-facing English copy. Call
+// LocalizedDescription to resolve it against the active Translator —
+// the raw field is a stable identifier, the method returns locale text.
 type CLIAgent struct {
-	Name           string            `json:"name"`
+	Name string `json:"name"`
+	// Description is a CONST-046 i18n message ID
+	// (skillregistry_agent_desc_<agent>). Use LocalizedDescription for
+	// user-facing copy; the bundle ships the English fallback.
 	Description    string            `json:"description"`
 	Language       string            `json:"language"`
 	ConfigFormat   string            `json:"config_format"`
@@ -21,7 +29,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	// Already supported agents
 	"OpenCode": {
 		Name:           "OpenCode",
-		Description:    "OpenCode AI coding assistant",
+		Description:    "skillregistry_agent_desc_opencode", // i18n: OpenCode AI coding assistant
 		Language:       "Go",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -34,7 +42,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Crush": {
 		Name:           "Crush",
-		Description:    "Terminal-based AI assistant for shell commands",
+		Description:    "skillregistry_agent_desc_crush", // i18n: Terminal-based AI assistant for shell commands
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -47,7 +55,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"HelixCode": {
 		Name:           "HelixCode",
-		Description:    "Distributed AI development platform assistant",
+		Description:    "skillregistry_agent_desc_helixcode", // i18n: Distributed AI development platform assistant
 		Language:       "Go",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -60,7 +68,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Kiro": {
 		Name:           "Kiro",
-		Description:    "AI coding agent with comprehensive tool support",
+		Description:    "skillregistry_agent_desc_kiro", // i18n: AI coding agent with comprehensive tool support
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "OpenAI-compatible",
@@ -75,7 +83,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	// New agents from HelixCode/Example_Projects
 	"Aider": {
 		Name:           "Aider",
-		Description:    "AI pair programming in your terminal",
+		Description:    "skillregistry_agent_desc_aider", // i18n: AI pair programming in your terminal
 		Language:       "Python",
 		ConfigFormat:   "TOML",
 		APIPattern:     "Multi-provider",
@@ -89,7 +97,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"ClaudeCode": {
 		Name:           "ClaudeCode",
-		Description:    "Anthropic's official CLI for Claude",
+		Description:    "skillregistry_agent_desc_claudecode", // i18n: Anthropic's official CLI for Claude
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Anthropic",
@@ -103,7 +111,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Cline": {
 		Name:           "Cline",
-		Description:    "Autonomous coding agent for VS Code",
+		Description:    "skillregistry_agent_desc_cline", // i18n: Autonomous coding agent for VS Code
 		Language:       "TypeScript",
 		ConfigFormat:   "Proto/gRPC",
 		APIPattern:     "OpenAI-compatible",
@@ -116,7 +124,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"CodenameGoose": {
 		Name:           "CodenameGoose",
-		Description:    "Profile-based AI coding assistant in Rust",
+		Description:    "skillregistry_agent_desc_codenamegoose", // i18n: Profile-based AI coding assistant in Rust
 		Language:       "Rust",
 		ConfigFormat:   "YAML",
 		APIPattern:     "Multi-provider",
@@ -129,7 +137,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"DeepSeekCLI": {
 		Name:           "DeepSeekCLI",
-		Description:    "DeepSeek AI coding assistant CLI",
+		Description:    "skillregistry_agent_desc_deepseekcli", // i18n: DeepSeek AI coding assistant CLI
 		Language:       "TypeScript",
 		ConfigFormat:   "ENV",
 		APIPattern:     "DeepSeek/Ollama",
@@ -143,7 +151,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Forge": {
 		Name:           "Forge",
-		Description:    "Workflow-based AI agent orchestration",
+		Description:    "skillregistry_agent_desc_forge", // i18n: Workflow-based AI agent orchestration
 		Language:       "Rust",
 		ConfigFormat:   "YAML+JSON Schema",
 		APIPattern:     "Multi-provider",
@@ -156,7 +164,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"GeminiCLI": {
 		Name:           "GeminiCLI",
-		Description:    "Google Gemini CLI coding assistant",
+		Description:    "skillregistry_agent_desc_geminicli", // i18n: Google Gemini CLI coding assistant
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Google",
@@ -170,7 +178,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"GPTEngineer": {
 		Name:           "GPTEngineer",
-		Description:    "End-to-end code generation agent",
+		Description:    "skillregistry_agent_desc_gptengineer", // i18n: End-to-end code generation agent
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "OpenAI",
@@ -184,7 +192,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"KiloCode": {
 		Name:           "KiloCode",
-		Description:    "Multi-provider AI coding assistant with 50+ LLM support",
+		Description:    "skillregistry_agent_desc_kilocode", // i18n: Multi-provider AI coding assistant with 50+ LLM support
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Multi-provider",
@@ -197,7 +205,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"MistralCode": {
 		Name:           "MistralCode",
-		Description:    "Mistral AI coding assistant CLI",
+		Description:    "skillregistry_agent_desc_mistralcode", // i18n: Mistral AI coding assistant CLI
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Mistral",
@@ -211,7 +219,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"OllamaCode": {
 		Name:           "OllamaCode",
-		Description:    "Local LLM coding assistant via Ollama",
+		Description:    "skillregistry_agent_desc_ollamacode", // i18n: Local LLM coding assistant via Ollama
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Ollama",
@@ -225,7 +233,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Plandex": {
 		Name:           "Plandex",
-		Description:    "Plan-based AI development workflow",
+		Description:    "skillregistry_agent_desc_plandex", // i18n: Plan-based AI development workflow
 		Language:       "Go",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -239,7 +247,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"QwenCode": {
 		Name:           "QwenCode",
-		Description:    "Alibaba Qwen AI coding assistant",
+		Description:    "skillregistry_agent_desc_qwencode", // i18n: Alibaba Qwen AI coding assistant
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Qwen",
@@ -253,7 +261,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"AmazonQ": {
 		Name:           "AmazonQ",
-		Description:    "Amazon Q Developer CLI with MCP support",
+		Description:    "skillregistry_agent_desc_amazonq", // i18n: Amazon Q Developer CLI with MCP support
 		Language:       "Rust",
 		ConfigFormat:   "JSON",
 		APIPattern:     "AWS",
@@ -273,7 +281,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 
 	"AgentDeck": {
 		Name:           "AgentDeck",
-		Description:    "Multi-agent orchestration deck for AI workflows",
+		Description:    "skillregistry_agent_desc_agentdeck", // i18n: Multi-agent orchestration deck for AI workflows
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -286,7 +294,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Bridle": {
 		Name:           "Bridle",
-		Description:    "Lightweight AI coding assistant with permission controls",
+		Description:    "skillregistry_agent_desc_bridle", // i18n: Lightweight AI coding assistant with permission controls
 		Language:       "TypeScript",
 		ConfigFormat:   "YAML",
 		APIPattern:     "OpenAI-compatible",
@@ -299,7 +307,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"CheshireCat": {
 		Name:           "CheshireCat",
-		Description:    "Cheshire Cat AI framework with plugin architecture",
+		Description:    "skillregistry_agent_desc_cheshirecat", // i18n: Cheshire Cat AI framework with plugin architecture
 		Language:       "Python",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Multi-provider",
@@ -313,7 +321,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"ClaudePlugins": {
 		Name:           "ClaudePlugins",
-		Description:    "Plugin and skills framework for Claude Code",
+		Description:    "skillregistry_agent_desc_claudeplugins", // i18n: Plugin and skills framework for Claude Code
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Anthropic",
@@ -326,7 +334,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"ClaudeSquad": {
 		Name:           "ClaudeSquad",
-		Description:    "Multi-agent squad for collaborative Claude instances",
+		Description:    "skillregistry_agent_desc_claudesquad", // i18n: Multi-agent squad for collaborative Claude instances
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "Anthropic",
@@ -340,7 +348,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Codai": {
 		Name:           "Codai",
-		Description:    "AI-powered code assistant with review capabilities",
+		Description:    "skillregistry_agent_desc_codai", // i18n: AI-powered code assistant with review capabilities
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -353,7 +361,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Codex": {
 		Name:           "Codex",
-		Description:    "OpenAI Codex CLI for code generation",
+		Description:    "skillregistry_agent_desc_codex", // i18n: OpenAI Codex CLI for code generation
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI",
@@ -367,7 +375,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"CodexSkills": {
 		Name:           "CodexSkills",
-		Description:    "Skill-based extension for Codex with custom capabilities",
+		Description:    "skillregistry_agent_desc_codexskills", // i18n: Skill-based extension for Codex with custom capabilities
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI",
@@ -380,7 +388,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Conduit": {
 		Name:           "Conduit",
-		Description:    "Pipeline-based AI workflow orchestrator",
+		Description:    "skillregistry_agent_desc_conduit", // i18n: Pipeline-based AI workflow orchestrator
 		Language:       "Go",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -393,7 +401,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Emdash": {
 		Name:           "Emdash",
-		Description:    "Minimalist AI writing and coding assistant",
+		Description:    "skillregistry_agent_desc_emdash", // i18n: Minimalist AI writing and coding assistant
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -406,7 +414,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"FauxPilot": {
 		Name:           "FauxPilot",
-		Description:    "Self-hosted GitHub Copilot alternative",
+		Description:    "skillregistry_agent_desc_fauxpilot", // i18n: Self-hosted GitHub Copilot alternative
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "Copilot-compatible",
@@ -420,7 +428,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"GetShitDone": {
 		Name:           "GetShitDone",
-		Description:    "Task-focused AI assistant for productivity",
+		Description:    "skillregistry_agent_desc_getshitdone", // i18n: Task-focused AI assistant for productivity
 		Language:       "Python",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -433,7 +441,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"GitHubCopilotCLI": {
 		Name:           "GitHubCopilotCLI",
-		Description:    "GitHub Copilot CLI for terminal assistance",
+		Description:    "skillregistry_agent_desc_githubcopilotcli", // i18n: GitHub Copilot CLI for terminal assistance
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "GitHub",
@@ -447,7 +455,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"GitHubSpecKit": {
 		Name:           "GitHubSpecKit",
-		Description:    "Specification-driven development toolkit",
+		Description:    "skillregistry_agent_desc_githubspeckit", // i18n: Specification-driven development toolkit
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "GitHub",
@@ -460,7 +468,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"GitMCP": {
 		Name:           "GitMCP",
-		Description:    "Git operations via MCP protocol",
+		Description:    "skillregistry_agent_desc_gitmcp", // i18n: Git operations via MCP protocol
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "MCP",
@@ -473,7 +481,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"GPTME": {
 		Name:           "GPTME",
-		Description:    "Personal AI assistant in your terminal",
+		Description:    "skillregistry_agent_desc_gptme", // i18n: Personal AI assistant in your terminal
 		Language:       "Python",
 		ConfigFormat:   "TOML",
 		APIPattern:     "Multi-provider",
@@ -486,7 +494,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"MobileAgent": {
 		Name:           "MobileAgent",
-		Description:    "Mobile app development AI assistant",
+		Description:    "skillregistry_agent_desc_mobileagent", // i18n: Mobile app development AI assistant
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -499,7 +507,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"MultiagentCoding": {
 		Name:           "MultiagentCoding",
-		Description:    "Multi-agent system for collaborative coding",
+		Description:    "skillregistry_agent_desc_multiagentcoding", // i18n: Multi-agent system for collaborative coding
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "Multi-provider",
@@ -512,7 +520,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Nanocoder": {
 		Name:           "Nanocoder",
-		Description:    "Lightweight code generation assistant",
+		Description:    "skillregistry_agent_desc_nanocoder", // i18n: Lightweight code generation assistant
 		Language:       "Rust",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -525,7 +533,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Noi": {
 		Name:           "Noi",
-		Description:    "AI-powered browser extension for development",
+		Description:    "skillregistry_agent_desc_noi", // i18n: AI-powered browser extension for development
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Multi-provider",
@@ -538,7 +546,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Octogen": {
 		Name:           "Octogen",
-		Description:    "Code generation and project scaffolding",
+		Description:    "skillregistry_agent_desc_octogen", // i18n: Code generation and project scaffolding
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "OpenAI-compatible",
@@ -551,7 +559,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"OpenHands": {
 		Name:           "OpenHands",
-		Description:    "Open-source AI software development platform",
+		Description:    "skillregistry_agent_desc_openhands", // i18n: Open-source AI software development platform
 		Language:       "Python",
 		ConfigFormat:   "TOML",
 		APIPattern:     "Multi-provider",
@@ -565,7 +573,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"PostgresMCP": {
 		Name:           "PostgresMCP",
-		Description:    "PostgreSQL database operations via MCP",
+		Description:    "skillregistry_agent_desc_postgresmcp", // i18n: PostgreSQL database operations via MCP
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "MCP",
@@ -579,7 +587,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Shai": {
 		Name:           "Shai",
-		Description:    "Shell AI assistant for command-line help",
+		Description:    "skillregistry_agent_desc_shai", // i18n: Shell AI assistant for command-line help
 		Language:       "Go",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -592,7 +600,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"SnowCLI": {
 		Name:           "SnowCLI",
-		Description:    "Snowflake data platform AI assistant",
+		Description:    "skillregistry_agent_desc_snowcli", // i18n: Snowflake data platform AI assistant
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "Snowflake",
@@ -606,7 +614,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"TaskWeaver": {
 		Name:           "TaskWeaver",
-		Description:    "Code-first AI agent framework by Microsoft",
+		Description:    "skillregistry_agent_desc_taskweaver", // i18n: Code-first AI agent framework by Microsoft
 		Language:       "Python",
 		ConfigFormat:   "YAML",
 		APIPattern:     "OpenAI-compatible",
@@ -620,7 +628,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"UIUXProMax": {
 		Name:           "UIUXProMax",
-		Description:    "UI/UX design AI assistant",
+		Description:    "skillregistry_agent_desc_uiuxpromax", // i18n: UI/UX design AI assistant
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -633,7 +641,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"VTCode": {
 		Name:           "VTCode",
-		Description:    "Voice-to-code AI assistant",
+		Description:    "skillregistry_agent_desc_vtcode", // i18n: Voice-to-code AI assistant
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "OpenAI-compatible",
@@ -647,7 +655,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Warp": {
 		Name:           "Warp",
-		Description:    "AI-powered terminal with built-in assistant",
+		Description:    "skillregistry_agent_desc_warp", // i18n: AI-powered terminal with built-in assistant
 		Language:       "Rust",
 		ConfigFormat:   "YAML",
 		APIPattern:     "Warp",
@@ -660,7 +668,7 @@ var CLIAgentRegistry = map[string]*CLIAgent{
 	},
 	"Continue": {
 		Name:           "Continue",
-		Description:    "Open-source AI code assistant for IDEs",
+		Description:    "skillregistry_agent_desc_continue", // i18n: Open-source AI code assistant for IDEs
 		Language:       "TypeScript",
 		ConfigFormat:   "JSON",
 		APIPattern:     "Multi-provider",
@@ -687,6 +695,23 @@ func GetAgent(name string) (*CLIAgent, bool) {
 		}
 	}
 	return nil, false
+}
+
+// LocalizedDescription resolves the agent's CONST-046 description
+// message ID against the active Translator and returns user-facing
+// copy in the wired locale. When no Translator is wired the
+// NoopTranslator echoes the message ID — callers SHOULD wire a
+// Translator (see i18n.go) before presenting agent listings to users.
+//
+// CONST-046 round-378 §11.4 Phase 4 (2026-05-20): this method is the
+// honest accessor for the one-line agent descriptions a user sees in a
+// registry listing. The Description field itself is a stable
+// identifier, not display copy.
+func (a *CLIAgent) LocalizedDescription() string {
+	if a == nil {
+		return ""
+	}
+	return tr(a.Description, nil)
 }
 
 // GetAllAgents returns all registered CLI agents

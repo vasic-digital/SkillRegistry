@@ -89,3 +89,154 @@ skillregistry_executor_post_hook_failed:
 
 skillregistry_executor_executing_skill:
   other: "Executing skill: {{.Name}} (execution: {{.ExecutionID}})"
+
+# --- registry.go: CLI-agent registry descriptions ---
+# Round-378 §11.4 CONST-046 Phase 4 (2026-05-20): the one-line,
+# user-facing descriptions shown when a user lists or inspects a
+# registered CLI coding agent. Each maps to CLIAgent.Description (a
+# message ID at rest; CLIAgent.LocalizedDescription resolves it via
+# the active Translator). SystemPrompt values are LLM prompt templates
+# and intentionally NOT migrated.
+skillregistry_agent_desc_opencode:
+  other: "OpenCode AI coding assistant"
+
+skillregistry_agent_desc_crush:
+  other: "Terminal-based AI assistant for shell commands"
+
+skillregistry_agent_desc_helixcode:
+  other: "Distributed AI development platform assistant"
+
+skillregistry_agent_desc_kiro:
+  other: "AI coding agent with comprehensive tool support"
+
+skillregistry_agent_desc_aider:
+  other: "AI pair programming in your terminal"
+
+skillregistry_agent_desc_claudecode:
+  other: "Anthropic's official CLI for Claude"
+
+skillregistry_agent_desc_cline:
+  other: "Autonomous coding agent for VS Code"
+
+skillregistry_agent_desc_codenamegoose:
+  other: "Profile-based AI coding assistant in Rust"
+
+skillregistry_agent_desc_deepseekcli:
+  other: "DeepSeek AI coding assistant CLI"
+
+skillregistry_agent_desc_forge:
+  other: "Workflow-based AI agent orchestration"
+
+skillregistry_agent_desc_geminicli:
+  other: "Google Gemini CLI coding assistant"
+
+skillregistry_agent_desc_gptengineer:
+  other: "End-to-end code generation agent"
+
+skillregistry_agent_desc_kilocode:
+  other: "Multi-provider AI coding assistant with 50+ LLM support"
+
+skillregistry_agent_desc_mistralcode:
+  other: "Mistral AI coding assistant CLI"
+
+skillregistry_agent_desc_ollamacode:
+  other: "Local LLM coding assistant via Ollama"
+
+skillregistry_agent_desc_plandex:
+  other: "Plan-based AI development workflow"
+
+skillregistry_agent_desc_qwencode:
+  other: "Alibaba Qwen AI coding assistant"
+
+skillregistry_agent_desc_amazonq:
+  other: "Amazon Q Developer CLI with MCP support"
+
+skillregistry_agent_desc_agentdeck:
+  other: "Multi-agent orchestration deck for AI workflows"
+
+skillregistry_agent_desc_bridle:
+  other: "Lightweight AI coding assistant with permission controls"
+
+skillregistry_agent_desc_cheshirecat:
+  other: "Cheshire Cat AI framework with plugin architecture"
+
+skillregistry_agent_desc_claudeplugins:
+  other: "Plugin and skills framework for Claude Code"
+
+skillregistry_agent_desc_claudesquad:
+  other: "Multi-agent squad for collaborative Claude instances"
+
+skillregistry_agent_desc_codai:
+  other: "AI-powered code assistant with review capabilities"
+
+skillregistry_agent_desc_codex:
+  other: "OpenAI Codex CLI for code generation"
+
+skillregistry_agent_desc_codexskills:
+  other: "Skill-based extension for Codex with custom capabilities"
+
+skillregistry_agent_desc_conduit:
+  other: "Pipeline-based AI workflow orchestrator"
+
+skillregistry_agent_desc_emdash:
+  other: "Minimalist AI writing and coding assistant"
+
+skillregistry_agent_desc_fauxpilot:
+  other: "Self-hosted GitHub Copilot alternative"
+
+skillregistry_agent_desc_getshitdone:
+  other: "Task-focused AI assistant for productivity"
+
+skillregistry_agent_desc_githubcopilotcli:
+  other: "GitHub Copilot CLI for terminal assistance"
+
+skillregistry_agent_desc_githubspeckit:
+  other: "Specification-driven development toolkit"
+
+skillregistry_agent_desc_gitmcp:
+  other: "Git operations via MCP protocol"
+
+skillregistry_agent_desc_gptme:
+  other: "Personal AI assistant in your terminal"
+
+skillregistry_agent_desc_mobileagent:
+  other: "Mobile app development AI assistant"
+
+skillregistry_agent_desc_multiagentcoding:
+  other: "Multi-agent system for collaborative coding"
+
+skillregistry_agent_desc_nanocoder:
+  other: "Lightweight code generation assistant"
+
+skillregistry_agent_desc_noi:
+  other: "AI-powered browser extension for development"
+
+skillregistry_agent_desc_octogen:
+  other: "Code generation and project scaffolding"
+
+skillregistry_agent_desc_openhands:
+  other: "Open-source AI software development platform"
+
+skillregistry_agent_desc_postgresmcp:
+  other: "PostgreSQL database operations via MCP"
+
+skillregistry_agent_desc_shai:
+  other: "Shell AI assistant for command-line help"
+
+skillregistry_agent_desc_snowcli:
+  other: "Snowflake data platform AI assistant"
+
+skillregistry_agent_desc_taskweaver:
+  other: "Code-first AI agent framework by Microsoft"
+
+skillregistry_agent_desc_uiuxpromax:
+  other: "UI/UX design AI assistant"
+
+skillregistry_agent_desc_vtcode:
+  other: "Voice-to-code AI assistant"
+
+skillregistry_agent_desc_warp:
+  other: "AI-powered terminal with built-in assistant"
+
+skillregistry_agent_desc_continue:
+  other: "Open-source AI code assistant for IDEs"

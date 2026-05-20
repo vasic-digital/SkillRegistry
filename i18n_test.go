@@ -114,6 +114,116 @@ var migratedMessageIDs = []string{
 	"skillregistry_executor_handler_nil_result",
 	"skillregistry_executor_post_hook_failed",
 	"skillregistry_executor_executing_skill",
+	// round-378 §11.4 Phase 4 — CLI-agent registry descriptions
+	"skillregistry_agent_desc_opencode",
+	"skillregistry_agent_desc_crush",
+	"skillregistry_agent_desc_helixcode",
+	"skillregistry_agent_desc_kiro",
+	"skillregistry_agent_desc_aider",
+	"skillregistry_agent_desc_claudecode",
+	"skillregistry_agent_desc_cline",
+	"skillregistry_agent_desc_codenamegoose",
+	"skillregistry_agent_desc_deepseekcli",
+	"skillregistry_agent_desc_forge",
+	"skillregistry_agent_desc_geminicli",
+	"skillregistry_agent_desc_gptengineer",
+	"skillregistry_agent_desc_kilocode",
+	"skillregistry_agent_desc_mistralcode",
+	"skillregistry_agent_desc_ollamacode",
+	"skillregistry_agent_desc_plandex",
+	"skillregistry_agent_desc_qwencode",
+	"skillregistry_agent_desc_amazonq",
+	"skillregistry_agent_desc_agentdeck",
+	"skillregistry_agent_desc_bridle",
+	"skillregistry_agent_desc_cheshirecat",
+	"skillregistry_agent_desc_claudeplugins",
+	"skillregistry_agent_desc_claudesquad",
+	"skillregistry_agent_desc_codai",
+	"skillregistry_agent_desc_codex",
+	"skillregistry_agent_desc_codexskills",
+	"skillregistry_agent_desc_conduit",
+	"skillregistry_agent_desc_emdash",
+	"skillregistry_agent_desc_fauxpilot",
+	"skillregistry_agent_desc_getshitdone",
+	"skillregistry_agent_desc_githubcopilotcli",
+	"skillregistry_agent_desc_githubspeckit",
+	"skillregistry_agent_desc_gitmcp",
+	"skillregistry_agent_desc_gptme",
+	"skillregistry_agent_desc_mobileagent",
+	"skillregistry_agent_desc_multiagentcoding",
+	"skillregistry_agent_desc_nanocoder",
+	"skillregistry_agent_desc_noi",
+	"skillregistry_agent_desc_octogen",
+	"skillregistry_agent_desc_openhands",
+	"skillregistry_agent_desc_postgresmcp",
+	"skillregistry_agent_desc_shai",
+	"skillregistry_agent_desc_snowcli",
+	"skillregistry_agent_desc_taskweaver",
+	"skillregistry_agent_desc_uiuxpromax",
+	"skillregistry_agent_desc_vtcode",
+	"skillregistry_agent_desc_warp",
+	"skillregistry_agent_desc_continue",
+}
+
+// TestI18n_AgentLocalizedDescription_ResolvesRealCopy proves the
+// round-378 CONST-046 migration: every CLI agent in CLIAgentRegistry
+// carries a message-ID Description that LocalizedDescription resolves
+// to real English copy via the wired bundle Translator — never a
+// leaked raw ID, never an empty string. This is the paired-mutation
+// guard: deleting an agent's skillregistry_agent_desc_* entry from
+// active.en.yaml makes tr() echo the ID and this test FAILs.
+func TestI18n_AgentLocalizedDescription_ResolvesRealCopy(t *testing.T) {
+	if len(CLIAgentRegistry) == 0 {
+		t.Fatal("CLIAgentRegistry is empty — registry not populated")
+	}
+	for name, agent := range CLIAgentRegistry {
+		if !strings.HasPrefix(agent.Description, "skillregistry_agent_desc_") {
+			t.Errorf("agent %q Description %q is not a CONST-046 message ID", name, agent.Description)
+			continue
+		}
+		got := agent.LocalizedDescription()
+		if got == "" {
+			t.Errorf("agent %q LocalizedDescription returned empty string", name)
+			continue
+		}
+		if got == agent.Description {
+			t.Errorf("agent %q LocalizedDescription echoed raw message ID %q — bundle entry missing", name, agent.Description)
+			continue
+		}
+		if strings.HasPrefix(got, "skillregistry_") {
+			t.Errorf("agent %q LocalizedDescription %q leaked a raw message ID prefix", name, got)
+		}
+	}
+}
+
+// TestI18n_AgentLocalizedDescription_NilSafe asserts the accessor is
+// nil-safe — a nil *CLIAgent returns "" rather than panicking.
+func TestI18n_AgentLocalizedDescription_NilSafe(t *testing.T) {
+	var a *CLIAgent
+	if got := a.LocalizedDescription(); got != "" {
+		t.Fatalf("nil CLIAgent.LocalizedDescription() = %q, want empty string", got)
+	}
+}
+
+// TestI18n_AgentLocalizedDescription_KnownAgents spot-checks a few
+// well-known agents resolve to their expected English copy — proving
+// the message-ID → bundle-text mapping is correct, not just non-empty.
+func TestI18n_AgentLocalizedDescription_KnownAgents(t *testing.T) {
+	cases := map[string]string{
+		"Aider":      "AI pair programming in your terminal",
+		"ClaudeCode": "Anthropic's official CLI for Claude",
+		"OpenCode":   "OpenCode AI coding assistant",
+	}
+	for name, want := range cases {
+		agent, ok := GetAgent(name)
+		if !ok {
+			t.Errorf("GetAgent(%q) not found", name)
+			continue
+		}
+		if got := agent.LocalizedDescription(); got != want {
+			t.Errorf("agent %q LocalizedDescription = %q, want %q", name, got, want)
+		}
+	}
 }
 
 // TestI18n_AllMigratedIDsHaveBundleEntries is the round-333

@@ -1,6 +1,7 @@
 package agents
 
 import (
+	"crypto/rand"
 	"errors"
 	"time"
 )
@@ -173,8 +174,17 @@ func generateExecutionID() string {
 func randomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	result := make([]byte, length)
+	if _, err := rand.Read(result); err != nil {
+		// crypto/rand failure is exceptional; fall back to a time-derived
+		// seed so the function never returns an empty/identical string.
+		seed := time.Now().UnixNano()
+		for i := range result {
+			result[i] = charset[(seed+int64(i)*int64(len(charset)))%int64(len(charset))]
+		}
+		return string(result)
+	}
 	for i := range result {
-		result[i] = charset[time.Now().UnixNano()%int64(len(charset))]
+		result[i] = charset[int(result[i])%len(charset)]
 	}
 	return string(result)
 }
